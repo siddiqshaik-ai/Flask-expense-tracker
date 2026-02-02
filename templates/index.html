@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 style="margin-top:18px;">Category Summary</h3>
+{% if cat_labels|length > 0 %}
+  <p style="margin: 6px 0 14px; font-weight:600;">
+    Top Category:
+    <span class="pill">{{ top_category }}</span>
+    — ₹ {{ "%.2f"|format(top_amount) }}
+  </p>
+
+  <div class="chart-card">
+    <canvas id="catChart" height="120"></canvas>
+  </div>
+{% else %}
+  <p>No data to show</p>
+{% endif %}
+<h2>Expenses</h2>
+
+<!-- Filters -->
+<form method="GET" class="filters">
+  <div class="field">
+    <label>Category</label>
+    <select name="category">
+      {% for c in categories %}
+        <option value="{{ c }}" {% if c == selected_category %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Month</label>
+    <input type="month" name="month" value="{{ selected_month }}">
+  </div>
+
+  <div class="filter-actions">
+    <button class="btn btn-primary" type="submit">Apply</button>
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">Clear</a>
+    <a class="btn btn-secondary"
+   href="{{ url_for('export_csv', category=selected_category, month=selected_month) }}">
+   Download CSV
+</a>
+  </div>
+</form>
+
+<!-- Expense Table -->
+<div class="table-card">
+  <div class="table-head">
+    <h3>Expenses</h3>
+  </div>
+
+  <div class="table-wrap">
+    <table class="expense-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Title</th>
+          <th>Category</th>
+          <th class="num">Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for e in expenses %}
+        <tr>
+          <td>{{ e.date }}</td>
+          <td class="title">{{ e.title }}</td>
+          <td><span class="pill">{{ e.category }}</span></td>
+          <td class="num">₹ {{ "%.2f"|format(e.amount) }}</td>
+          <td class="actions">
+            <a class="btn btn-small btn-secondary" href="{{ url_for('edit', id=e.id) }}">Edit</a>
+            <a class="btn btn-small btn-danger" href="{{ url_for('delete', id=e.id) }}"
+               onclick="return confirm('Delete this expense?');">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Monthly Summary -->
+<h3 style="margin-top:24px;">Monthly Summary</h3>
+<div class="chart-card">
+  <canvas id="monthChart" height="90"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+  // Monthly chart
+  const monthLabels = {{ month_labels | tojson }};
+  const monthTotals = {{ month_totals | tojson }};
+
+  const monthCtx = document.getElementById("monthChart");
+  if (monthCtx) {
+    new Chart(monthCtx, {
+      type: "bar",
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: "Total spent",
+          data: monthTotals
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  // Category chart (Doughnut)
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+const catLabels = {{ cat_labels | tojson }};
+const catTotals = {{ cat_totals | tojson }};
+
+if (catLabels.length > 0) {
+  const ctxCat = document.getElementById("catChart");
+
+  new Chart(ctxCat, {
+    type: "doughnut",
+    data: {
+      labels: catLabels,
+      datasets: [{
+        data: catTotals,
+        backgroundColor: [
+          "#4f46e5",
+          "#22c55e",
+          "#f97316",
+          "#ef4444",
+          "#06b6d4",
+          "#a855f7"
+        ],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      cutout: "65%",
+      plugins: {
+        legend: { position: "top" }
+      }
+    }
+  });
+}
+</script>
+{% endblock %}

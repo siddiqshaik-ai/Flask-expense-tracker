@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <h1>Expense Tracker</h1>
+
+      <nav>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Home</a>
+        <a href="{{ url_for('add') }}" class="btn btn-primary">➕ Add Expense</a>
+      </nav>
+
+      <hr>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-wrap">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+</body>
+</html>
