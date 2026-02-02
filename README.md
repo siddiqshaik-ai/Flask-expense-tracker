@@ -82,18 +82,13 @@ pip install flask flask-sqlalchemy
 
 # Run the app
 python app.py
-👤 Author
 
+Open browser and go to:git
+http://127.0.0.1:5000/
+
+👤 Author
 Siddiq Shaik
 GitHub: https://github.com/siddiqshaik-ai
 
----
 
-## 3️⃣ Save → Commit → Push README
 
-Run these commands in terminal:
-
-```bash
-git add README.md
-git commit -m "Add project README"
-git push
